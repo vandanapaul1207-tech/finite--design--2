@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finite by Design — Parasympathetic Pathways</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0a0704;min-height:100vh;font-family:'Georgia',serif;color:#f0e6c8;overflow-x:hidden}
+
+/* ── LANDING ── */
+#screen-landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;background:#0a0704}
+.brand{font-size:12px;letter-spacing:0.25em;text-transform:uppercase;color:#8a7a5a;margin-bottom:1rem}
+.main-title{font-size:48px;font-weight:400;color:#f0e6c8;line-height:1.1;margin-bottom:0.5rem}
+.main-sub{font-size:15px;color:#8a7a5a;letter-spacing:0.06em;margin-bottom:0.5rem}
+.organ-row{display:flex;gap:1.5rem;justify-content:center;margin:1.5rem 0;flex-wrap:wrap}
+.organ-chip{font-size:12px;color:#5a4a2a;border:0.5px solid #2a1e0a;border-radius:99px;padding:4px 14px;letter-spacing:0.05em}
+.section-label{font-size:12px;color:#8a7a5a;margin:1.25rem 0 0.75rem;letter-spacing:0.08em;text-transform:uppercase}
+.candle-row{display:flex;gap:1.5rem;justify-content:center;margin-bottom:0.5rem;flex-wrap:wrap}
+.candle-pick{cursor:pointer;text-align:center;padding:1.25rem 1rem;border:0.5px solid #2a1e0a;border-radius:10px;background:#0f0c07;transition:all 0.2s;width:130px}
+.candle-pick:hover{border-color:#c8902a;background:#13100a}
+.candle-pick.chosen{border-color:#c8902a;background:#1a1208;box-shadow:0 0 12px rgba(200,144,42,0.15)}
+.candle-name{font-size:11px;color:#c8902a;letter-spacing:0.1em;text-transform:uppercase;margin-top:8px;margin-bottom:3px}
+.candle-ganglion{font-size:11px;color:#5a4a2a;line-height:1.4}
+.avatar-row{display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.avatar-card{cursor:pointer;border:0.5px solid #2a1e0a;border-radius:10px;padding:1rem;background:#0f0c07;transition:all 0.2s;text-align:center;width:110px}
+.avatar-card:hover{border-color:#c8902a}
+.avatar-card.chosen{border-color:#c8902a;background:#1a1208;box-shadow:0 0 12px rgba(200,144,42,0.12)}
+.avatar-label{font-size:11px;color:#8a7a5a;margin-top:6px;letter-spacing:0.04em}
+.start-btn{background:#c8902a;color:#0a0704;border:none;padding:16px 48px;font-size:16px;letter-spacing:0.1em;cursor:pointer;border-radius:4px;font-family:Georgia,serif;font-weight:700;margin-top:0.5rem;transition:all 0.2s}
+.start-btn:hover{background:#e0a030}
+.start-btn:disabled{background:#2a1e0a;color:#4a3a1a;cursor:not-allowed}
+.music-toggle{position:absolute;top:1rem;right:1rem;background:transparent;border:0.5px solid #3a2e1a;color:#8a7a5a;padding:6px 14px;font-size:12px;cursor:pointer;border-radius:4px;font-family:Georgia,serif}
+.music-toggle:hover{border-color:#c8902a;color:#c8902a}
+
+/* ── GAME ── */
+#screen-game{display:none;min-height:100vh;flex-direction:column;background:#0a0704}
+.game-header{display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.5rem;border-bottom:0.5px solid #1a1208;background:#0a0704}
+.game-title{font-size:14px;color:#c8902a;letter-spacing:0.1em;font-style:italic}
+.header-right{display:flex;align-items:center;gap:12px}
+.flame-meter{display:flex;align-items:center;gap:8px;font-size:12px;color:#8a7a5a}
+.flame-bar{width:120px;height:8px;background:#1a1208;border-radius:4px;overflow:hidden;border:0.5px solid #2a1e0a}
+.flame-fill{height:100%;background:#c8902a;border-radius:4px;transition:width 0.6s,background 0.6s}
+.flame-pct{font-size:12px;color:#8a7a5a;min-width:36px;text-align:right}
+
+.game-body{display:flex;flex:1;overflow:hidden}
+.left-panel{width:280px;background:#0f0c07;border-right:0.5px solid #1a1208;display:flex;flex-direction:column;padding:1.25rem;gap:1rem;overflow-y:auto}
+.center-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;position:relative}
+.right-panel{width:320px;background:#0f0c07;border-left:0.5px solid #1a1208;display:flex;flex-direction:column;padding:1.5rem;gap:1rem;overflow-y:auto}
+
+.avatar-stage{text-align:center;margin-bottom:0.5rem}
+.prog-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#3a2e1a;margin-bottom:6px}
+.progress-dots{display:flex;gap:8px;justify-content:center}
+.dot{width:10px;height:10px;border-radius:50%;background:#1a1208;border:0.5px solid #2a1e0a;transition:all 0.4s}
+.dot.done{background:#c8902a;border-color:#c8902a}
+.dot.current{background:#f0c060;border-color:#f0c060;box-shadow:0 0 6px rgba(240,192,96,0.4)}
+
+.step-section{background:#13100a;border-radius:8px;padding:1rem;border:0.5px solid #1a1208}
+.step-tag{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#c8902a;margin-bottom:6px}
+.step-desc{font-size:14px;color:#e0d0a8;line-height:1.65;font-style:italic;margin-bottom:8px}
+.step-fact{font-size:12px;color:#6a5a3a;line-height:1.65;padding:8px 10px;border-left:2px solid #2a1e0a;background:#0a0704;border-radius:0 4px 4px 0}
+
+.q-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#8a7a5a;margin-bottom:10px}
+.question-text{font-size:17px;color:#f0e6c8;line-height:1.6;margin-bottom:1rem;font-weight:400}
+.door-row{display:flex;flex-direction:column;gap:10px}
+.door-btn{cursor:pointer;border:0.5px solid #2a1e0a;border-radius:8px;padding:14px 18px;background:#13100a;color:#c8a060;font-size:15px;font-family:Georgia,serif;text-align:left;transition:all 0.25s;line-height:1.5;width:100%}
+.door-btn:hover{border-color:#c8902a;background:#1a1208;color:#f0e6c8}
+.door-btn.correct{border-color:#4aaa4a;background:#081a08;color:#7adc7a;cursor:default}
+.door-btn.wrong{border-color:#aa3a2a;background:#1a0a06;color:#dc7a6a;cursor:default;opacity:0.7}
+.door-btn:disabled{cursor:default}
+.feedback-box{font-size:14px;line-height:1.65;padding:12px 14px;border-radius:8px;margin-top:10px}
+.feedback-box.good{background:#081a08;color:#6acc6a;border:0.5px solid #2a5a2a}
+.feedback-box.bad{background:#1a0806;color:#cc6a5a;border:0.5px solid #5a2010}
+.next-btn{margin-top:14px;background:transparent;border:0.5px solid #c8902a;color:#c8902a;padding:12px 20px;font-size:14px;cursor:pointer;border-radius:6px;font-family:Georgia,serif;width:100%;transition:all 0.2s;letter-spacing:0.04em}
+.next-btn:hover{background:#c8902a;color:#0a0704}
+
+/* ── RESCUE ── */
+.rescue-overlay{display:none;position:absolute;inset:0;background:rgba(5,3,1,0.92);z-index:10;align-items:center;justify-content:center;flex-direction:column;padding:2rem;text-align:center;border-radius:0}
+.rescue-overlay.show{display:flex}
+.rescue-title{font-size:22px;color:#f0c060;margin-bottom:0.5rem}
+.rescue-sub{font-size:14px;color:#8a7a5a;margin-bottom:1.5rem;line-height:1.6}
+.rescue-q{font-size:17px;color:#f0e6c8;margin-bottom:1.25rem;line-height:1.6;max-width:500px}
+.rescue-opts{display:flex;flex-direction:column;gap:10px;width:100%;max-width:480px}
+.rescue-btn{cursor:pointer;border:0.5px solid #3a2e1a;border-radius:8px;padding:13px 18px;background:#13100a;color:#c8a060;font-size:15px;font-family:Georgia,serif;text-align:left;transition:all 0.2s}
+.rescue-btn:hover{border-color:#c8902a;color:#f0e6c8}
+.rescue-btn.correct{border-color:#4aaa4a;background:#081a08;color:#7adc7a}
+.rescue-btn.wrong{border-color:#aa3a2a;background:#1a0806;color:#dc7a6a}
+.rescue-feedback{font-size:14px;margin-top:10px;line-height:1.6;color:#8adc8a}
+.rescue-continue{margin-top:14px;background:#c8902a;color:#0a0704;border:none;padding:12px 28px;font-size:14px;cursor:pointer;border-radius:4px;font-family:Georgia,serif;font-weight:700;display:none}
+
+/* ── END ── */
+#screen-end{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;background:#0a0704}
+.end-brand{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#5a4a2a;margin-bottom:1rem}
+.end-title{font-size:38px;color:#f0e6c8;margin-bottom:0.25rem;font-weight:400}
+.end-sub{font-size:14px;color:#8a7a5a;margin-bottom:1.5rem}
+.score-badge{font-size:64px;color:#c8902a;font-weight:700;line-height:1}
+.score-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#5a4a2a;margin-bottom:2rem}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:560px;margin-bottom:2rem}
+.summary-card{background:#0f0c07;border:0.5px solid #2a1e0a;border-radius:8px;padding:14px;text-align:left}
+.summ-g{font-size:11px;color:#c8902a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px}
+.summ-e{font-size:12px;color:#6a5a3a;line-height:1.55}
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.restart-btn{background:transparent;border:0.5px solid #c8902a;color:#c8902a;padding:12px 32px;font-size:14px;cursor:pointer;border-radius:4px;font-family:Georgia,serif;transition:all 0.2s}
+.restart-btn:hover{background:#c8902a;color:#0a0704}
+
+@media(max-width:800px){
+  .game-body{flex-direction:column}
+  .left-panel,.right-panel{width:100%;border-right:none;border-left:none;border-bottom:0.5px solid #1a1208}
+  .center-panel{padding:1rem}
+  .summary-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- MUSIC TOGGLE -->
+<button class="music-toggle" id="musicBtn" onclick="toggleMusic()">♪ Music: On</button>
+
+<!-- ══ LANDING ══════════════════════════════════════════════════════ -->
+<div id="screen-landing">
+  <div class="brand">Finite by Design</div>
+  <div class="main-title">Four flames.<br>Four pathways.</div>
+  <div class="main-sub">Navigate the darkness. Follow the nerve. Reach the end organ.</div>
+
+  <div class="organ-row">
+    <span class="organ-chip">Ciliary ganglion → pupil constriction</span>
+    <span class="organ-chip">Pterygopalatine → lacrimal gland</span>
+    <span class="organ-chip">Submandibular → salivation</span>
+    <span class="organ-chip">Otic → parotid</span>
+  </div>
+
+  <div class="section-label">Choose your pathway</div>
+  <div class="candle-row" id="candleRow"></div>
+
+  <div class="section-label">Choose your avatar</div>
+  <div class="avatar-row" id="avatarRow"></div>
+
+  <button class="start-btn" id="startBtn" disabled onclick="startGame()">Light the candle</button>
+</div>
+
+<!-- ══ GAME ══════════════════════════════════════════════════════════ -->
+<div id="screen-game">
+  <div class="game-header">
+    <div class="game-title" id="gTitle">Pathway</div>
+    <div class="header-right">
+      <div class="flame-meter">
+        <svg width="12" height="18" viewBox="0 0 12 18"><ellipse cx="6" cy="12" rx="4" ry="6" fill="#c8902a" opacity="0.9"/><ellipse cx="6" cy="10" rx="2.5" ry="3.5" fill="#f0e060" opacity="0.7"/></svg>
+        <div class="flame-bar"><div class="flame-fill" id="flameFill" style="width:100%"></div></div>
+        <span class="flame-pct" id="flamePct">100%</span>
+      </div>
+      <button class="music-toggle" onclick="toggleMusic()" id="musicBtn2" style="position:static">♪</button>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <!-- LEFT: avatar + progress + scene -->
+    <div class="left-panel">
+      <div class="avatar-stage" id="avatarStage"></div>
+      <div>
+        <div class="prog-label">Progress</div>
+        <div class="progress-dots" id="progressDots"></div>
+      </div>
+      <div class="step-section">
+        <div class="step-tag" id="stepLabel">Origin</div>
+        <div class="step-desc" id="stepDesc"></div>
+        <div class="step-fact" id="stepFact"></div>
+      </div>
+    </div>
+
+    <!-- CENTER: canvas + rescue overlay -->
+    <div class="center-panel" style="position:relative">
+      <canvas id="mazeCanvas" width="360" height="480" style="border-radius:10px;max-width:100%;max-height:60vh"></canvas>
+      <div class="rescue-overlay" id="rescueOverlay">
+        <svg width="60" height="80" viewBox="0 0 60 80" style="margin-bottom:1rem">
+          <rect x="20" y="30" width="20" height="44" rx="3" fill="#2a1e0a" stroke="#8a7a5a" stroke-width="0.5"/>
+          <line x1="30" y1="30" x2="30" y2="24" stroke="#5a4a2a" stroke-width="1.5"/>
+          <ellipse cx="30" cy="20" rx="7" ry="9" fill="#4a3a1a" opacity="0.6"/>
+        </svg>
+        <div class="rescue-title">The flame is dying...</div>
+        <div class="rescue-sub">Answer this simpler question correctly<br>to relight your candle and continue.</div>
+        <div class="rescue-q" id="rescueQ"></div>
+        <div class="rescue-opts" id="rescueOpts"></div>
+        <div class="rescue-feedback" id="rescueFb"></div>
+        <button class="rescue-continue" id="rescueContinueBtn" onclick="rescueContinue()">Candle relit — continue ↗</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: question + answers -->
+    <div class="right-panel">
+      <div class="q-label" id="qLabel">Choose your passage</div>
+      <div class="question-text" id="questionText"></div>
+      <div class="door-row" id="doorRow"></div>
+      <div id="feedbackBox"></div>
+      <button class="next-btn" id="nextBtn" style="display:none" onclick="nextStep()">Continue deeper →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ END ════════════════════════════════════════════════════════════ -->
+<div id="screen-end">
+  <div class="end-brand">Finite by Design</div>
+  <div class="end-title">Pathway complete.</div>
+  <div class="end-sub">The candle burned true.</div>
+  <div class="score-badge" id="scoreNum"></div>
+  <div class="score-label">correct on first attempt</div>
+  <div class="summary-grid" id="summaryGrid"></div>
+  <div class="btn-row">
+    <button class="restart-btn" onclick="goHome()">Try another pathway</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// AUDIO ENGINE
+// ══════════════════════════════════════════════════
+let audioCtx=null,musicOn=true,currentNodes=[];
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+
+function stopMusic(){currentNodes.forEach(n=>{try{n.stop();}catch(e){}});currentNodes=[];}
+
+function playAmbient(type){
+  stopMusic();
+  if(!musicOn)return;
+  const ctx=getCtx();
+  const master=ctx.createGain();master.gain.setValueAtTime(0.18,ctx.currentTime);master.connect(ctx.destination);
+
+  const configs={
+    landing:{notes:[130.8,164.8,196,261.6],waveform:'sine',interval:2.2,detune:5},
+    ciliary:{notes:[220,277.2,329.6,440],waveform:'triangle',interval:1.8,detune:3},
+    pterygopalatine:{notes:[174.6,220,261.6,349.2],waveform:'sine',interval:2.5,detune:7},
+    submandibular:{notes:[146.8,196,246.9,293.7],waveform:'triangle',interval:2.0,detune:4},
+    otic:{notes:[110,138.6,164.8,220],waveform:'sine',interval:3.0,detune:6}
+  };
+  const cfg=configs[type]||configs.landing;
+
+  cfg.notes.forEach((freq,i)=>{
+    const osc=ctx.createOscillator();
+    const g=ctx.createGain();
+    osc.type=cfg.waveform;
+    osc.frequency.value=freq;
+    osc.detune.value=(i%2===0?1:-1)*cfg.detune;
+    g.gain.setValueAtTime(0,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.25,ctx.currentTime+1+i*0.3);
+    osc.connect(g);g.connect(master);
+    osc.start();
+    currentNodes.push(osc);
+
+    function pulse(t){
+      g.gain.setValueAtTime(0.05,t);
+      g.gain.linearRampToValueAtTime(0.28,t+0.8);
+      g.gain.linearRampToValueAtTime(0.05,t+cfg.interval*0.9);
+      const next=ctx.createOscillator();
+      next.type=cfg.waveform;
+      next.frequency.value=cfg.notes[(i+1)%cfg.notes.length];
+      next.detune.value=-cfg.detune;
+      const ng=ctx.createGain();ng.gain.setValueAtTime(0,t+cfg.interval);
+      ng.gain.linearRampToValueAtTime(0.15,t+cfg.interval+0.5);
+      ng.gain.linearRampToValueAtTime(0,t+cfg.interval*1.8);
+      next.connect(ng);ng.connect(master);
+      next.start(t+cfg.interval);next.stop(t+cfg.interval*2);
+    }
+    for(let k=0;k<30;k++) pulse(ctx.currentTime+2+i*0.4+k*cfg.interval*1.1);
+  });
+
+  // low drone
+  const drone=ctx.createOscillator();
+  const dg=ctx.createGain();
+  drone.type='sine';drone.frequency.value=cfg.notes[0]/2;
+  dg.gain.setValueAtTime(0.12,ctx.currentTime);
+  drone.connect(dg);dg.connect(master);drone.start();
+  currentNodes.push(drone);
+}
+
+function playChime(good){
+  const ctx=getCtx();
+  const freq=good?880:220;
+  const osc=ctx.createOscillator();const g=ctx.createGain();
+  osc.type=good?'sine':'sawtooth';osc.frequency.value=freq;
+  g.gain.setValueAtTime(0.3,ctx.currentTime);
+  g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.8);
+  osc.connect(g);g.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+0.8);
+}
+
+function toggleMusic(){
+  musicOn=!musicOn;
+  document.getElementById('musicBtn').textContent='♪ Music: '+(musicOn?'On':'Off');
+  document.getElementById('musicBtn2').textContent='♪';
+  if(musicOn&&currentPathway)playAmbient(MOOD_MAP[selectedCandle]);
+  else stopMusic();
+}
+
+const MOOD_MAP=['ciliary','pterygopalatine','submandibular','otic'];
+
+// ══════════════════════════════════════════════════
+// AVATAR SVGs
+// ══════════════════════════════════════════════════
+function avatarSVG(type,size=90){
+  if(type==='boy') return `<svg width="${size}" height="${size}" viewBox="0 0 90 90">
+    <circle cx="45" cy="26" r="18" fill="#f4c9a0" stroke="#c8a070" stroke-width="0.5"/>
+    <ellipse cx="45" cy="30" rx="10" ry="5" fill="#3a2a1a"/>
+    <circle cx="38" cy="26" r="2.5" fill="#2a1a0a"/>
+    <circle cx="52" cy="26" r="2.5" fill="#2a1a0a"/>
+    <path d="M40 33 Q45 37 50 33" fill="none" stroke="#8a5a3a" stroke-width="1.2" stroke-linecap="round"/>
+    <rect x="28" y="44" width="34" height="30" rx="6" fill="#2a4a7a" stroke="#1a3a6a" stroke-width="0.5"/>
+    <text x="45" y="62" text-anchor="middle" font-size="8" fill="#8ab8ea" font-family="Georgia">MED</text>
+    <line x1="28" y1="52" x2="14" y2="64" stroke="#f4c9a0" stroke-width="5" stroke-linecap="round"/>
+    <line x1="62" y1="52" x2="76" y2="64" stroke="#f4c9a0" stroke-width="5" stroke-linecap="round"/>
+    <line x1="34" y1="74" x2="30" y2="90" stroke="#2a4a7a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="56" y1="74" x2="60" y2="90" stroke="#2a4a7a" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="14" cy="66" r="5" fill="#f4c9a0"/>
+    <circle cx="76" cy="66" r="5" fill="#f4c9a0"/>
+  </svg>`;
+
+  if(type==='girl') return `<svg width="${size}" height="${size}" viewBox="0 0 90 90">
+    <circle cx="45" cy="26" r="18" fill="#f4c9a0" stroke="#c8a070" stroke-width="0.5"/>
+    <path d="M27 20 Q45 8 63 20 Q66 30 62 36 Q45 44 28 36 Q24 30 27 20Z" fill="#8B2252" opacity="0.85"/>
+    <path d="M28 36 Q20 50 22 62" fill="none" stroke="#8B2252" stroke-width="6" stroke-linecap="round"/>
+    <path d="M62 36 Q70 50 68 62" fill="none" stroke="#8B2252" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="38" cy="27" r="2.5" fill="#2a1a0a"/>
+    <circle cx="52" cy="27" r="2.5" fill="#2a1a0a"/>
+    <path d="M40 34 Q45 38 50 34" fill="none" stroke="#8a5a3a" stroke-width="1.2" stroke-linecap="round"/>
+    <rect x="30" y="44" width="30" height="30" rx="6" fill="#6a2a6a" stroke="#4a1a4a" stroke-width="0.5"/>
+    <text x="45" y="62" text-anchor="middle" font-size="8" fill="#d0a0d0" font-family="Georgia">MED</text>
+    <line x1="30" y1="52" x2="16" y2="64" stroke="#f4c9a0" stroke-width="5" stroke-linecap="round"/>
+    <line x1="60" y1="52" x2="74" y2="64" stroke="#f4c9a0" stroke-width="5" stroke-linecap="round"/>
+    <line x1="36" y1="74" x2="32" y2="90" stroke="#6a2a6a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="54" y1="74" x2="58" y2="90" stroke="#6a2a6a" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="16" cy="66" r="5" fill="#f4c9a0"/>
+    <circle cx="74" cy="66" r="5" fill="#f4c9a0"/>
+  </svg>`;
+
+  if(type==='neutral') return `<svg width="${size}" height="${size}" viewBox="0 0 90 90">
+    <circle cx="45" cy="26" r="18" fill="#e8c090" stroke="#b89060" stroke-width="0.5"/>
+    <path d="M30 18 Q45 12 60 18 Q62 28 60 32 Q45 38 30 32 Q28 28 30 18Z" fill="#4a3a2a" opacity="0.7"/>
+    <circle cx="38" cy="26" r="2.5" fill="#2a1a0a"/>
+    <circle cx="52" cy="26" r="2.5" fill="#2a1a0a"/>
+    <line x1="40" y1="34" x2="50" y2="34" stroke="#8a6a4a" stroke-width="1.2" stroke-linecap="round"/>
+    <rect x="29" y="44" width="32" height="30" rx="6" fill="#2a4a3a" stroke="#1a3a2a" stroke-width="0.5"/>
+    <text x="45" y="62" text-anchor="middle" font-size="8" fill="#80c8a0" font-family="Georgia">MED</text>
+    <line x1="29" y1="52" x2="15" y2="64" stroke="#e8c090" stroke-width="5" stroke-linecap="round"/>
+    <line x1="61" y1="52" x2="75" y2="64" stroke="#e8c090" stroke-width="5" stroke-linecap="round"/>
+    <line x1="35" y1="74" x2="31" y2="90" stroke="#2a4a3a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="55" y1="74" x2="59" y2="90" stroke="#2a4a3a" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="15" cy="66" r="5" fill="#e8c090"/>
+    <circle cx="75" cy="66" r="5" fill="#e8c090"/>
+  </svg>`;
+
+  if(type==='transformer') return `<svg width="${size}" height="${size}" viewBox="0 0 90 90">
+    <rect x="32" y="8" width="26" height="26" rx="4" fill="#1a3a5a" stroke="#4a8aba" stroke-width="1.5"/>
+    <rect x="36" y="12" width="8" height="6" rx="1" fill="#00cfff" opacity="0.9"/>
+    <rect x="46" y="12" width="8" height="6" rx="1" fill="#ff4400" opacity="0.9"/>
+    <rect x="38" y="22" width="14" height="4" rx="1" fill="#4a8aba"/>
+    <rect x="28" y="34" width="34" height="28" rx="3" fill="#0a2a4a" stroke="#3a7aaa" stroke-width="1"/>
+    <rect x="32" y="38" width="10" height="16" rx="2" fill="#1a4a7a"/>
+    <rect x="48" y="38" width="10" height="16" rx="2" fill="#1a4a7a"/>
+    <rect x="36" y="42" width="18" height="8" rx="1" fill="#0a1a2a" stroke="#00cfff" stroke-width="0.5"/>
+    <rect x="10" y="36" width="18" height="10" rx="3" fill="#0a2a4a" stroke="#3a7aaa" stroke-width="1"/>
+    <rect x="62" y="36" width="18" height="10" rx="3" fill="#0a2a4a" stroke="#3a7aaa" stroke-width="1"/>
+    <rect x="34" y="62" width="10" height="24" rx="3" fill="#0a2a4a" stroke="#3a7aaa" stroke-width="1"/>
+    <rect x="46" y="62" width="10" height="24" rx="3" fill="#0a2a4a" stroke="#3a7aaa" stroke-width="1"/>
+    <rect x="30" y="82" width="14" height="5" rx="2" fill="#1a3a5a"/>
+    <rect x="46" y="82" width="14" height="5" rx="2" fill="#1a3a5a"/>
+    <circle cx="14" cy="8" r="5" fill="#ffaa00" opacity="0.8"/>
+    <circle cx="76" cy="8" r="5" fill="#ffaa00" opacity="0.8"/>
+  </svg>`;
+
+  if(type==='anime') return `<svg width="${size}" height="${size}" viewBox="0 0 90 90">
+    <circle cx="45" cy="28" r="20" fill="#fde8c8" stroke="#e0b890" stroke-width="0.5"/>
+    <path d="M25 22 Q45 4 65 22 Q70 32 65 18 Q45 6 25 18 Q20 32 25 22Z" fill="#1a0a0a" opacity="0.85"/>
+    <path d="M22 24 Q20 36 24 44" fill="none" stroke="#1a0a0a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M68 24 Q70 36 66 44" fill="none" stroke="#1a0a0a" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="36" cy="28" rx="6" ry="8" fill="white"/>
+    <ellipse cx="54" cy="28" rx="6" ry="8" fill="white"/>
+    <ellipse cx="36" cy="29" rx="4.5" ry="6" fill="#3a60c8"/>
+    <ellipse cx="54" cy="29" rx="4.5" ry="6" fill="#3a60c8"/>
+    <circle cx="36" cy="29" r="3" fill="#0a0a1a"/>
+    <circle cx="54" cy="29" r="3" fill="#0a0a1a"/>
+    <circle cx="34.5" cy="27" r="1" fill="white"/>
+    <circle cx="52.5" cy="27" r="1" fill="white"/>
+    <path d="M38 36 Q45 41 52 36" fill="none" stroke="#d07060" stroke-width="1.5" stroke-linecap="round"/>
+    <ellipse cx="33" cy="36" rx="5" ry="3" fill="#f0a0a0" opacity="0.5"/>
+    <ellipse cx="57" cy="36" rx="5" ry="3" fill="#f0a0a0" opacity="0.5"/>
+    <rect x="28" y="48" width="34" height="26" rx="6" fill="#c84060" stroke="#a02040" stroke-width="0.5"/>
+    <text x="45" y="65" text-anchor="middle" font-size="9" fill="#ffd0e0" font-family="Georgia">★</text>
+    <line x1="28" y1="56" x2="13" y2="68" stroke="#fde8c8" stroke-width="5" stroke-linecap="round"/>
+    <line x1="62" y1="56" x2="77" y2="68" stroke="#fde8c8" stroke-width="5" stroke-linecap="round"/>
+    <line x1="34" y1="74" x2="30" y2="90" stroke="#c84060" stroke-width="5" stroke-linecap="round"/>
+    <line x1="56" y1="74" x2="60" y2="90" stroke="#c84060" stroke-width="5" stroke-linecap="round"/>
+  </svg>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 90 90"><circle cx="45" cy="45" r="30" fill="#2a1e0a"/><text x="45" y="52" text-anchor="middle" font-size="24" fill="#c8902a">?</text></svg>`;
+}
+
+function candleSVG(color,height=70){
+  return `<svg width="44" height="${height}" viewBox="0 0 44 ${height}">
+    <rect x="14" y="${height*0.38}" width="16" height="${height*0.58}" rx="3" fill="#1a1208" stroke="${color}" stroke-width="0.8"/>
+    <rect x="16" y="${height*0.40}" width="12" height="${height*0.54}" rx="2" fill="#0d0a06"/>
+    <line x1="22" y1="${height*0.38}" x2="22" y2="${height*0.28}" stroke="#6a5a3a" stroke-width="1.2"/>
+    <ellipse cx="22" cy="${height*0.24}" rx="6" ry="8" fill="${color}" opacity="0.92"/>
+    <ellipse cx="22" cy="${height*0.20}" rx="3" ry="4" fill="#fffae0" opacity="0.65"/>
+    <ellipse cx="21" cy="${height*0.18}" rx="1.5" ry="2" fill="white" opacity="0.4"/>
+  </svg>`;
+}
+
+// ══════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════
+const CANDLES=[
+  {name:'Deep Work',ganglion:'Ciliary ganglion',color:'#c8902a'},
+  {name:'Overdue',ganglion:'Pterygopalatine',color:'#7a5ac8'},
+  {name:'Overdue',ganglion:'Submandibular',color:'#2a8a6a'},
+  {name:'Deadline',ganglion:'Otic ganglion',color:'#c84a2a'}
+];
+
+const AVATARS_DEF=[
+  {id:'boy',label:'Student (he/him)'},
+  {id:'girl',label:'Student (she/her)'},
+  {id:'neutral',label:'Student (they/them)'},
+  {id:'transformer',label:'Transformer'},
+  {id:'anime',label:'Anime'}
+];
+
+const RESCUE_QS=[
+  {q:'The parasympathetic nervous system is part of which division of the autonomic nervous system?',opts:['Sympathetic','Parasympathetic','Somatic'],correct:1,fb:'Correct — parasympathetic is one of the two divisions of the autonomic nervous system.'},
+  {q:'Preganglionic parasympathetic fibres synapse in ganglia that are located where relative to the target organ?',opts:['Far from the target organ','Close to or within the target organ','In the spinal cord'],correct:1,fb:'Yes — parasympathetic ganglia are located near or within their target organs, unlike sympathetic ganglia.'},
+  {q:'Which neurotransmitter is released at parasympathetic postganglionic synapses?',opts:['Noradrenaline','Acetylcholine','Dopamine'],correct:1,fb:'Acetylcholine — both pre- and postganglionic parasympathetic fibres are cholinergic.'},
+  {q:'How many parasympathetic ganglia are found in the head?',opts:['Two','Three','Four'],correct:2,fb:'Four — ciliary, pterygopalatine, submandibular, and otic ganglia.'},
+  {q:'The parasympathetic nervous system is often called the "rest and digest" system. What does this mean for the pupils?',opts:['Pupils dilate','Pupils constrict','Pupils do not change'],correct:1,fb:'Pupils constrict (miosis) — the sphincter pupillae is under parasympathetic control via the ciliary ganglion.'}
+];
+
+const PATHWAYS=[
+  {steps:[
+    {label:'Origin',desc:'You are a preganglionic fibre, born in the Edinger-Westphal nucleus of the midbrain.',fact:'The Edinger-Westphal nucleus is the parasympathetic component of CN III, in the periaqueductal grey of the midbrain.',q:'Which cranial nerve carries you out of the brainstem?',options:['CN III — oculomotor nerve','CN VII — facial nerve','CN V — trigeminal nerve'],correct:0,fb:'Correct. CN III carries your preganglionic fibres. You travel in its inferior division.'},
+    {label:'The foramen',desc:'You approach the bony orbit. Three openings face you. Only one leads to the ciliary ganglion.',fact:'The superior orbital fissure transmits CN III, IV, VI, V1, and the ophthalmic veins.',q:'Which opening do you pass through to enter the orbit?',options:['Foramen ovale','Superior orbital fissure','Foramen rotundum'],correct:1,fb:'The superior orbital fissure — you enter the orbit alongside CN III, IV, VI and V1.'},
+    {label:'The synapse',desc:'Inside the orbit, a small ganglion rests beside the optic nerve. Your preganglionic journey ends here.',fact:'The ciliary ganglion is ~1–2mm, lying lateral to the optic nerve, ~1cm anterior to the annulus of Zinn.',q:'What is the name of this ganglion?',options:['Pterygopalatine ganglion','Otic ganglion','Ciliary ganglion'],correct:2,fb:'The ciliary ganglion. Postganglionic fibres now continue via the short ciliary nerves.'},
+    {label:'End organ',desc:'Short ciliary nerves pierce the sclera and carry you to your final targets inside the eyeball.',fact:'8–10 short ciliary nerves pierce the sclera. Loss of this pathway → fixed, dilated pupil (CN III palsy sign).',q:'Which two structures receive your postganglionic fibres?',options:['Lacrimal gland and cornea','Ciliary muscle and sphincter pupillae','Dilator pupillae and retina'],correct:1,fb:'Ciliary muscle (accommodation) and sphincter pupillae (miosis). Loss = fixed dilated pupil — key sign of CN III palsy and transtentorial herniation.'}
+  ],summary:'Pupil constriction (miosis) and lens accommodation. Loss causes fixed dilated pupil — hallmark of CN III palsy.'},
+  {steps:[
+    {label:'Origin',desc:'You arise in the superior salivatory nucleus, deep within the pons.',fact:'The superior salivatory nucleus gives preganglionic fibres to both the pterygopalatine and submandibular ganglia via CN VII.',q:'Which cranial nerve trunk carries you out of the brainstem?',options:['CN IX — glossopharyngeal','CN VII — facial nerve','CN X — vagus nerve'],correct:1,fb:'CN VII — you travel as the nervus intermedius, the sensory and parasympathetic root of the facial nerve.'},
+    {label:'The foramen',desc:'The greater petrosal nerve must reach the pterygopalatine fossa. A named canal carries you there.',fact:'The greater petrosal nerve leaves the geniculate ganglion, crosses the foramen lacerum, and enters the pterygoid canal to join the deep petrosal nerve.',q:'Which canal carries the nerve of the pterygoid canal to the pterygopalatine ganglion?',options:['Foramen ovale','Pterygoid canal (Vidian canal)','Foramen spinosum'],correct:1,fb:'The Vidian canal. Greater petrosal + deep petrosal = nerve of the pterygoid canal. Key surgical landmark in endoscopic skull base surgery.'},
+    {label:'The synapse',desc:'You arrive in the pterygopalatine fossa — the most complex crossroads of the skull base.',fact:'The pterygopalatine ganglion is the largest parasympathetic ganglion of the head, suspended from V2.',q:'From which nerve is the pterygopalatine ganglion suspended?',options:['V2 — maxillary nerve','V3 — mandibular nerve','CN IX'],correct:0,fb:'V2 (maxillary nerve). Sensory fibres pass through without synapsing; only parasympathetic fibres synapse here.'},
+    {label:'End organ',desc:'Postganglionic fibres scatter to multiple targets via borrowed sensory nerves.',fact:'Fibres reach the lacrimal gland via the zygomatic and lacrimal nerves (V1). Nasal and palatine glands via nasal branches.',q:'What are the primary secretomotor targets?',options:['Parotid gland and tongue','Lacrimal gland and nasal/palatine mucosa','Submandibular and sublingual glands'],correct:1,fb:'Lacrimal gland and nasal/palatine mucosa. Dry eye after skull base surgery often reflects damage here. Also implicated in cluster headaches.'}
+  ],summary:'Tears and nasal/palatine secretions. Key in skull base surgery; implicated in cluster headache pathophysiology.'},
+  {steps:[
+    {label:'Origin',desc:'You arise again from the superior salivatory nucleus — same origin, different destination.',fact:'Both pterygopalatine and submandibular ganglia share the superior salivatory nucleus, but branch via different CN VII divisions.',q:'Which branch of CN VII carries you toward the floor of the mouth?',options:['Greater petrosal nerve','Chorda tympani','Lesser petrosal nerve'],correct:1,fb:'The chorda tympani — it leaves CN VII in the facial canal, crosses the middle ear between the malleus and incus, then exits to join the lingual nerve.'},
+    {label:'The foramen',desc:'The chorda tympani crosses the middle ear and must exit the skull to reach the infratemporal fossa.',fact:'The chorda tympani exits via the petrotympanic (Glaserian) fissure — a narrow slit anterior to the tympanic membrane.',q:'Through which fissure does the chorda tympani exit the middle ear?',options:['Foramen ovale','Petrotympanic (Glaserian) fissure','Stylomastoid foramen'],correct:1,fb:'The petrotympanic fissure. This is why middle ear surgery (stapedectomy, mastoidectomy) can cause taste disturbance.'},
+    {label:'The synapse',desc:'The chorda tympani joins the lingual nerve and rides it to the floor of the mouth.',fact:'The submandibular ganglion hangs from the lingual nerve by two short roots, just superior to the submandibular gland.',q:'Where is the submandibular ganglion located?',options:['In the parotid gland','Suspended from the lingual nerve above the submandibular gland','On the hypoglossal nerve'],correct:1,fb:'Suspended from the lingual nerve — postganglionic fibres drop directly into the submandibular gland below.'},
+    {label:'End organ',desc:'Two salivary glands receive your fibres. Together they dominate resting saliva production.',fact:'Submandibular gland = ~70% of resting saliva. Sublingual = ~5%. Both at risk in floor-of-mouth surgery.',q:'Which two glands does the submandibular ganglion supply?',options:['Parotid and sublingual','Submandibular and sublingual','Submandibular and lacrimal'],correct:1,fb:'Submandibular and sublingual glands. Xerostomia after floor-of-mouth surgery reflects loss of ~75% of resting saliva.'}
+  ],summary:'Submandibular and sublingual salivation (~75% of resting saliva). Chorda tympani at risk in middle ear procedures.'},
+  {steps:[
+    {label:'Origin',desc:'You arise from the inferior salivatory nucleus — deep in the medulla, the last parasympathetic nucleus.',fact:'The inferior salivatory nucleus is the only parasympathetic cranial nucleus located solely in the medulla, supplying only the otic ganglion.',q:'Which cranial nerve carries your fibres from the medulla?',options:['CN VII — facial nerve','CN IX — glossopharyngeal','CN X — vagus nerve'],correct:1,fb:'CN IX — the glossopharyngeal nerve. Your fibres travel via Jacobson\'s nerve (tympanic branch of CN IX) on an unusual looping route.'},
+    {label:'The foramen',desc:'Your route loops: you enter the middle ear, cross it, then exit again to reach the infratemporal fossa.',fact:'Jacobson\'s nerve enters the middle ear via the tympanic canaliculus, forms the tympanic plexus, then exits as the lesser petrosal nerve.',q:'Through which foramen does the lesser petrosal nerve exit to reach the infratemporal fossa?',options:['Foramen ovale or adjacent canal','Petrotympanic fissure','Foramen spinosum'],correct:0,fb:'Near foramen ovale — sometimes via a dedicated small canal, sometimes through the ovale itself. Anatomy varies — a real surgical nuance.'},
+    {label:'The synapse',desc:'You arrive below the foramen ovale. The ganglion hangs from the nearby mandibular nerve.',fact:'The otic ganglion sits just inferior to the foramen ovale, medial to V3. It is the most inferior of the four head ganglia.',q:'From which nerve is the otic ganglion suspended?',options:['V2 — maxillary nerve','V3 — mandibular nerve','CN IX'],correct:1,fb:'V3 (mandibular nerve). Postganglionic fibres then hitchhike on the auriculotemporal nerve (V3 branch) to reach the parotid.'},
+    {label:'End organ',desc:'Postganglionic fibres travel with the auriculotemporal nerve to the largest salivary gland.',fact:'Frey\'s syndrome: after parotidectomy, aberrant regeneration of parasympathetic fibres into overlying sweat glands causes gustatory sweating.',q:'What is the target — and what complication follows aberrant reinnervation after surgery?',options:['Submandibular gland — xerostomia','Parotid gland — Frey\'s syndrome','Lacrimal gland — dry eye'],correct:1,fb:'Parotid gland. Frey\'s syndrome: aberrant parasympathetic fibres innervate sweat glands, causing flushing and sweating when eating. Classic post-parotidectomy complication.'}
+  ],summary:'Parotid salivation. Aberrant reinnervation after parotidectomy causes Frey\'s syndrome (gustatory sweating).'}
+];
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let selectedCandle=-1,selectedAvatar='boy',currentPathway=null;
+let currentStep=0,score=0,totalQ=0,answered=false;
+let candleH=1.0,avatarY=440,inRescue=false,rescueUsed=false;
+let rescueIdx=0;
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function init(){
+  // candles
+  const cr=document.getElementById('candleRow');
+  CANDLES.forEach((c,i)=>{
+    const d=document.createElement('div');d.className='candle-pick';
+    d.innerHTML=candleSVG(c.color)+'<div class="candle-name">'+c.name+'</div><div class="candle-ganglion">'+c.ganglion+'</div>';
+    d.onclick=()=>{selectedCandle=i;document.querySelectorAll('.candle-pick').forEach(e=>e.classList.remove('chosen'));d.classList.add('chosen');checkReady();};
+    cr.appendChild(d);
+  });
+  // avatars
+  const ar=document.getElementById('avatarRow');
+  AVATARS_DEF.forEach(a=>{
+    const d=document.createElement('div');d.className='avatar-card';
+    d.innerHTML=avatarSVG(a.id,60)+'<div class="avatar-label">'+a.label+'</div>';
+    d.onclick=()=>{selectedAvatar=a.id;document.querySelectorAll('.avatar-card').forEach(e=>e.classList.remove('chosen'));d.classList.add('chosen');};
+    ar.appendChild(d);
+  });
+  // default avatar
+  ar.children[0].classList.add('chosen');
+  playAmbient('landing');
+}
+
+function checkReady(){document.getElementById('startBtn').disabled=selectedCandle<0;}
+
+// ══════════════════════════════════════════════════
+// GAME START
+// ══════════════════════════════════════════════════
+function startGame(){
+  currentPathway=PATHWAYS[selectedCandle];
+  currentStep=0;score=0;totalQ=0;answered=false;
+  candleH=1.0;avatarY=440;inRescue=false;rescueUsed=false;
+  rescueIdx=Math.floor(Math.random()*RESCUE_QS.length);
+
+  document.getElementById('screen-landing').style.display='none';
+  document.getElementById('screen-game').style.display='flex';
+  document.getElementById('gTitle').textContent=CANDLES[selectedCandle].ganglion;
+
+  document.getElementById('avatarStage').innerHTML=avatarSVG(selectedAvatar,90);
+  buildProgress();renderStep();drawMaze();
+  playAmbient(MOOD_MAP[selectedCandle]);
+}
+
+function buildProgress(){
+  const p=document.getElementById('progressDots');p.innerHTML='';
+  currentPathway.steps.forEach((_,i)=>{
+    const d=document.createElement('div');d.className='dot'+(i===0?' current':'');d.id='dot'+i;p.appendChild(d);
+  });
+}
+function updateProgress(){
+  currentPathway.steps.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(d)d.className='dot'+(i<currentStep?'done':i===currentStep?' current':'');});
+}
+
+// ══════════════════════════════════════════════════
+// RENDER STEP
+// ══════════════════════════════════════════════════
+function renderStep(){
+  const s=currentPathway.steps[currentStep];
+  document.getElementById('stepLabel').textContent=s.label;
+  document.getElementById('stepDesc').textContent=s.desc;
+  document.getElementById('stepFact').textContent=s.fact;
+  document.getElementById('questionText').textContent=s.q;
+  document.getElementById('qLabel').textContent='Choose your passage';
+  updateFlameUI();
+
+  const dr=document.getElementById('doorRow');dr.innerHTML='';
+  answered=false;
+  document.getElementById('feedbackBox').innerHTML='';
+  document.getElementById('nextBtn').style.display='none';
+
+  s.options.forEach((opt,i)=>{
+    const b=document.createElement('button');b.className='door-btn';b.textContent=opt;
+    b.onclick=()=>answer(i,s,b);dr.appendChild(b);
+  });
+  updateProgress();
+}
+
+function updateFlameUI(){
+  const pct=Math.round(candleH*100);
+  document.getElementById('flameFill').style.width=pct+'%';
+  document.getElementById('flameFill').style.background=candleH>0.5?'#c8902a':candleH>0.25?'#aa6010':'#882000';
+  document.getElementById('flamePct').textContent=pct+'%';
+}
+
+// ══════════════════════════════════════════════════
+// ANSWER
+// ══════════════════════════════════════════════════
+function answer(i,s,btn){
+  if(answered)return;answered=true;totalQ++;
+  document.querySelectorAll('.door-btn').forEach(b=>{b.disabled=true;b.style.pointerEvents='none';});
+  const fb=document.getElementById('feedbackBox');
+
+  if(i===s.correct){
+    score++;btn.classList.add('correct');
+    fb.innerHTML='<div class="feedback-box good">'+s.fb+'</div>';
+    candleH=Math.max(0.12,candleH-0.07);
+    avatarY=Math.max(60,avatarY-95);
+    playChime(true);
+    document.getElementById('nextBtn').style.display='block';
+    const isLast=currentStep>=currentPathway.steps.length-1;
+    document.getElementById('nextBtn').textContent=isLast?'Reach the end organ →':'Continue deeper →';
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.door-btn')[s.correct].classList.add('correct');
+    fb.innerHTML='<div class="feedback-box bad">Not quite — the correct passage is shown. '+s.fb+'</div>';
+    candleH=Math.max(0.08,candleH-0.22);
+    playChime(false);
+    flickerCandle();
+    updateFlameUI();
+    drawMaze();
+
+    if(candleH<=0.25&&!rescueUsed){
+      setTimeout(()=>showRescue(),1200);
+    } else {
+      document.getElementById('nextBtn').style.display='block';
+      const isLast=currentStep>=currentPathway.steps.length-1;
+      document.getElementById('nextBtn').textContent=isLast?'Reach the end organ →':'Continue deeper →';
+    }
+  }
+  updateFlameUI();drawMaze();
+}
+
+// ══════════════════════════════════════════════════
+// RESCUE
+// ══════════════════════════════════════════════════
+function showRescue(){
+  rescueUsed=true;inRescue=true;
+  const rq=RESCUE_QS[rescueIdx];
+  document.getElementById('rescueQ').textContent=rq.q;
+  const opts=document.getElementById('rescueOpts');opts.innerHTML='';
+  rq.opts.forEach((o,i)=>{
+    const b=document.createElement('button');b.className='rescue-btn';b.textContent=o;
+    b.onclick=()=>answerRescue(i,rq,b);opts.appendChild(b);
+  });
+  document.getElementById('rescueFb').textContent='';
+  document.getElementById('rescueContinueBtn').style.display='none';
+  document.getElementById('rescueOverlay').classList.add('show');
+}
+
+function answerRescue(i,rq,btn){
+  document.querySelectorAll('.rescue-btn').forEach(b=>{b.disabled=true;b.style.pointerEvents='none';});
+  if(i===rq.correct){
+    btn.classList.add('correct');
+    document.getElementById('rescueFb').textContent=rq.fb;
+    document.getElementById('rescueFb').style.color='#8adc8a';
+    candleH=Math.min(1.0,candleH+0.45);
+    updateFlameUI();drawMaze();playChime(true);
+    document.getElementById('rescueContinueBtn').style.display='inline-block';
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.rescue-btn')[rq.correct].classList.add('correct');
+    document.getElementById('rescueFb').textContent='Not quite — but the candle gives you one more chance. '+rq.fb;
+    document.getElementById('rescueFb').style.color='#dc8a6a';
+    candleH=Math.min(1.0,candleH+0.2);
+    updateFlameUI();drawMaze();
+    document.getElementById('rescueContinueBtn').style.display='inline-block';
+    document.getElementById('rescueContinueBtn').textContent='Continue with dim candle →';
+  }
+}
+
+function rescueContinue(){
+  document.getElementById('rescueOverlay').classList.remove('show');
+  inRescue=false;
+  answered=true;
+  document.getElementById('nextBtn').style.display='block';
+  const isLast=currentStep>=currentPathway.steps.length-1;
+  document.getElementById('nextBtn').textContent=isLast?'Reach the end organ →':'Continue deeper →';
+  // retry same step — reset answers so student can try again
+  const s=currentPathway.steps[currentStep];
+  document.getElementById('feedbackBox').innerHTML='';
+  answered=false;
+  const dr=document.getElementById('doorRow');dr.innerHTML='';
+  document.getElementById('nextBtn').style.display='none';
+  s.options.forEach((opt,i)=>{
+    const b=document.createElement('button');b.className='door-btn';b.textContent=opt;
+    b.onclick=()=>answer(i,s,b);dr.appendChild(b);
+  });
+}
+
+function nextStep(){
+  currentStep++;
+  if(currentStep>=currentPathway.steps.length){endGame();return;}
+  renderStep();drawMaze();
+}
+
+// ══════════════════════════════════════════════════
+// CANVAS
+// ══════════════════════════════════════════════════
+function drawMaze(){
+  const canvas=document.getElementById('mazeCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#080503';ctx.fillRect(0,0,W,H);
+
+  const cx=W/2;
+  const stageY=[H-60,H-160,H-260,H-360];
+  const labels=['Brainstem','Foramen','Ganglion','End organ'];
+  const col=CANDLES[selectedCandle]?.color||'#c8902a';
+
+  // corridor
+  ctx.fillStyle='#0f0c07';
+  ctx.beginPath();ctx.roundRect(cx-30,40,60,H-80,4);ctx.fill();
+  ctx.strokeStyle='#1a1208';ctx.lineWidth=0.5;ctx.stroke();
+
+  // stage nodes
+  stageY.forEach((y,i)=>{
+    ctx.fillStyle=i<currentStep?col:i===currentStep?'#f0c060':'#1a1208';
+    ctx.beginPath();ctx.arc(cx,y,i===currentStep?10:7,0,Math.PI*2);ctx.fill();
+    if(i===currentStep){ctx.strokeStyle='rgba(240,192,96,0.3)';ctx.lineWidth=6;ctx.beginPath();ctx.arc(cx,y,14,0,Math.PI*2);ctx.stroke();}
+    ctx.font='10px Georgia';ctx.fillStyle='#3a2e1a';ctx.textAlign='right';ctx.fillText(labels[i],cx-18,y+4);
+  });
+
+  // connector lines
+  for(let i=0;i<3;i++){
+    ctx.strokeStyle=i<currentStep?col:'#1a1208';
+    ctx.lineWidth=i<currentStep?1.5:0.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(cx,stageY[i]);ctx.lineTo(cx,stageY[i+1]);ctx.stroke();ctx.setLineDash([]);
+  }
+
+  // candle glow around avatar
+  const glowR=Math.min(160,Math.max(40,candleH*160));
+  const grd=ctx.createRadialGradient(cx,avatarY,0,cx,avatarY,glowR);
+  grd.addColorStop(0,'rgba(240,200,80,0.25)');
+  grd.addColorStop(0.5,'rgba(200,144,42,0.1)');
+  grd.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grd;ctx.beginPath();ctx.arc(cx,avatarY,glowR,0,Math.PI*2);ctx.fill();
+
+  // avatar as image via offscreen
+  const avatarSvgStr=avatarSVG(selectedAvatar,52);
+  const img=new Image();
+  const blob=new Blob([avatarSvgStr],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  img.onload=()=>{ctx.drawImage(img,cx-26,avatarY-46,52,52);URL.revokeObjectURL(url);};
+  img.src=url;
+
+  // candle flame indicator top-right
+  const fh=Math.max(12,candleH*60);
+  ctx.fillStyle='#1a1208';ctx.beginPath();ctx.roundRect(W-36,16,20,64,3);ctx.fill();
+  ctx.fillStyle=candleH>0.5?col:candleH>0.25?'#aa6010':'#882000';
+  ctx.beginPath();ctx.roundRect(W-36,16+(64-fh),20,fh,3);ctx.fill();
+  ctx.strokeStyle='#2a1e0a';ctx.lineWidth=0.5;ctx.beginPath();ctx.roundRect(W-36,16,20,64,3);ctx.stroke();
+}
+
+function flickerCandle(){
+  let f=0;const iv=setInterval(()=>{
+    f++;const v=f%2===0?'1':'0.15';
+    document.getElementById('flameFill').style.opacity=v;
+    if(f>8){clearInterval(iv);document.getElementById('flameFill').style.opacity='1';}
+  },90);
+}
+
+// ══════════════════════════════════════════════════
+// END
+// ══════════════════════════════════════════════════
+function endGame(){
+  stopMusic();
+  playAmbient('landing');
+  document.getElementById('screen-game').style.display='none';
+  const end=document.getElementById('screen-end');end.style.display='flex';
+  document.getElementById('scoreNum').textContent=score+'/'+totalQ;
+  const sg=document.getElementById('summaryGrid');sg.innerHTML='';
+  PATHWAYS.forEach((p,i)=>{
+    const c=document.createElement('div');c.className='summary-card';
+    c.innerHTML='<div class="summ-g">'+CANDLES[i].ganglion+'</div><div class="summ-e">'+p.summary+'</div>';
+    sg.appendChild(c);
+  });
+}
+
+function goHome(){
+  stopMusic();
+  document.getElementById('screen-end').style.display='none';
+  document.getElementById('screen-landing').style.display='flex';
+  selectedCandle=-1;
+  document.querySelectorAll('.candle-pick').forEach(e=>e.classList.remove('chosen'));
+  document.getElementById('startBtn').disabled=true;
+  playAmbient('landing');
+}
+
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
